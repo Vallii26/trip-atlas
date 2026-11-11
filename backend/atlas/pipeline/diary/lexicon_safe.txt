@@ -1,0 +1,22 @@
+# Atlas safe narrative vocabulary — version 1
+# Words a generated diary sentence may use WITHOUT evidence. Everything else must be licensed by
+# the cited evidence (payload values, the traveller's note) or by a lexicon entry that verifies.
+# One word per whitespace-separated token; inflections (-s, -ed, -ing) are accepted automatically.
+# Rule for adding a word: it must assert nothing about the world on its own. No adjectives of
+# size, quality, speed or mood; no negation; no "again/still/finally/usual" (they imply history).
+# version: 1
+
+# generic motion / progress verbs
+start began begin begun head go went gone get got reach arrive leave left come came stop end
+finish spend spent take took taken make made continue follow cross move turn pull carry led lead
+bring brought set kept keep stay last passed passing
+
+# perception / reporting verbs (the object still has to be licensed)
+look saw see seen watch say says said wrote write note notes words word record recorded
+
+# neutral nouns
+day days time way place stop part trip journey ride route leg stretch side point rest thing
+total distance while moment
+
+# neutral connectives / adverbs
+there here also too straight onward onwards
