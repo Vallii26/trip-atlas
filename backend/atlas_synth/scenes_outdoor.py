@@ -729,7 +729,7 @@ def wildlife(c: Cv, P):
     animal = P.get("animal", "ibex")
     grass = animal != "ibex"
     c.bg([(0, (136, 168, 90) if grass else (176, 170, 160)), (1, (96, 130, 66) if grass else (136, 130, 122))], yh + 0.04, 1.0)
-    c.blur(0.006)
+    c.blur(0.002)
     for _ in range(12):
         c.ell(L.uniform(0, 1), L.uniform(0.6, 1.0), L.uniform(0.04, 0.12), L.uniform(0.02, 0.05), jit((150, 146, 140), L, 16))
     ax, ay = L.uniform(0.4, 0.6), L.uniform(0.6, 0.68)

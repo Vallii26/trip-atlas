@@ -27,3 +27,20 @@ def scene_sheet(out: Path, scenes: list[str] | None = None, variants: int = 2, w
         for v in range(variants):
             ims.append(render_photo(s, {}, 1000 + v * 77 + len(s), v, w, h))
     sheet(ims, 6).save(out)
+
+
+def trip_sheet(trip_dir: Path, out: Path, n: int = 30) -> None:
+    """Evenly sample ``n`` real photos (in time order) of a generated trip into one PNG."""
+    import json
+
+    try:
+        import pillow_heif
+
+        pillow_heif.register_heif_opener()
+    except Exception:  # pragma: no cover
+        pass
+    t = json.loads((trip_dir / "truth.json").read_text(encoding="utf-8"))
+    real = [p for p in t["photos"] if p["junk"] is None and p["expected_status"] == "ok" and p["format"] in ("JPEG", "HEIF")]
+    step = max(1, len(real) // n)
+    ims = [Image.open(trip_dir / p["file"]) for p in real[::step][:n]]
+    sheet(ims, 6).save(out)

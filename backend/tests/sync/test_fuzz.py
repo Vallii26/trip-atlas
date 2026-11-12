@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import os
 
-from hypothesis import HealthCheck, settings, strategies as st
+from hypothesis import HealthCheck, Phase, settings, strategies as st
 from hypothesis.stateful import RuleBasedStateMachine, initialize, invariant, rule
 
 from atlas.sync.hlc import format_hlc
@@ -331,7 +331,9 @@ class SyncMachine(RuleBasedStateMachine):
             assert not lost, f"SILENT LOSS in {key}: {sorted(lost)}\n{doc.to_dict()}"
 
 
+_PHASES = [Phase.explicit, Phase.reuse, Phase.generate] + ([] if os.environ.get("ATLAS_SYNC_FUZZ_NOSHRINK") else [Phase.shrink])
 SyncMachine.TestCase.settings = settings(
+    phases=_PHASES,
     max_examples=EXAMPLES, stateful_step_count=STEPS, deadline=None,
     suppress_health_check=list(HealthCheck), print_blob=True,
 )

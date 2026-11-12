@@ -272,11 +272,16 @@ def _apply_upsert(doc: Doc | None, m: Mutation, hlc: str, device: str, cs: Colle
             new.meta[DELETED] = _stamp(hlc, device, new.meta.get(DELETED))
 
     chosen: list[dict[str, Any]] = []
+    continued: dict[str, dict[str, Any]] = {}
     if m.resolve and not is_pipeline:
         gone = set(m.resolve)
         # "Use this": a resolved alternative whose value this mutation also writes was CHOSEN,
         # not dismissed.  It may only disappear by becoming the text (see end of function).
         chosen = [a for a in new.conflicts if a["id"] in gone and m.fields.get(a["field"]) == a["value"]]
+        # ... and one whose value is this mutation's BASE was chosen and then edited further
+        # (client coalesced "Use this" + more typing): the mutation continues that branch.
+        continued = {a["field"]: a for a in new.conflicts
+                     if a["id"] in gone and a["field"] in m.fields and m.base.get(a["field"]) == a["value"]}
         new.conflicts = [a for a in new.conflicts if a["id"] not in gone]
 
     for f in sorted(m.fields):
@@ -305,7 +310,7 @@ def _apply_upsert(doc: Doc | None, m: Mutation, hlc: str, device: str, cs: Colle
             else:
                 res.fields[f] = "lost"
         else:
-            res.fields[f] = _merge_text(new, cs, res, f, c, s or "", b, hlc, device)
+            res.fields[f] = _merge_text(new, cs, res, f, c, s or "", b, hlc, device, continued.get(f))
 
     for a in chosen:
         # The chosen text did not become the text (a newer edit raced it, or the write was a
@@ -323,13 +328,14 @@ def _apply_upsert(doc: Doc | None, m: Mutation, hlc: str, device: str, cs: Colle
 
 
 def _merge_text(doc: Doc, cs: CollectionSchema, res: ApplyResult, f: str, c: str, s: str,
-                b: Any, hlc: str, device: str) -> str:
+                b: Any, hlc: str, device: str, continued: dict[str, Any] | None = None) -> str:
     fm = doc.meta[f]
-    # Is this device continuing to edit a text of its own that already lost (b is its alternative)?
-    # Then the new text supersedes that alternative: the user edited it deliberately.
-    own = next((a for a in doc.conflicts
-                if a["field"] == f and a["device"] == device and a["value"] == b), None)
-    if own is not None:
+    # Is this mutation a continuation of a losing branch — b is this device's own alternative, or
+    # an alternative the mutation itself resolves?  Then the new text supersedes that
+    # alternative: the user edited it deliberately.
+    own = continued or next((a for a in doc.conflicts
+                             if a["field"] == f and a["device"] == device and a["value"] == b), None)
+    if own is not None and own in doc.conflicts:
         doc.conflicts.remove(own)
     r = merge3(b if isinstance(b, str) else "", s, c)
     if r.clean:

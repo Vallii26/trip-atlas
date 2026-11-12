@@ -6,6 +6,7 @@ import bisect
 import math
 from dataclasses import dataclass
 
+from .scenes import SCENES
 from .spec import Mo, TripBuilder
 from .util import Path3, densify, haversine_m, offset_m, rng_of
 
@@ -77,7 +78,7 @@ class Geo:
         stays = {s.after: s for s in trip.stays}
         for mo in trip.moments:
             a = self._mo_start_xyz(mo)
-            indoor = mo.indoor if mo.indoor is not None else ("indoor" in __import__("atlas_synth.scenes", fromlist=["SCENES"]).SCENES[mo.scene])
+            indoor = mo.indoor if mo.indoor is not None else ("indoor" in SCENES[mo.scene])
             if mo.to or mo.via:
                 pts = [a] + [self._xyz(v) for v in mo.via] + ([self.poi_xyz(mo.to)] if mo.to else [a])
                 mode = mo.transport or "walk"

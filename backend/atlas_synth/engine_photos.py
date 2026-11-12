@@ -116,7 +116,7 @@ def expand(trip: TripBuilder, geo: Geo, clock: Clock, scale: float, px: int) -> 
             chunk = int((t - mo.start) / 2400) if g["seg"].kind == "move" else 0
             p["layout_seed"] = seed_of(trip.seed, "layout", mo.id, scene, chunk)
             p["look"] = mo.looks.get(scene, mo.look if scene == mo.scene else {})
-        p.setdefault("view_seed", seed_of(trip.seed, "view", cam.id if cam else "-", f"{t:.3f}", len(photos)))
+        p.setdefault("view_seed", seed_of(trip.seed, "view", cam.id if cam else "-", str(t), len(photos)))
         photos.append(p)
         return p
 
