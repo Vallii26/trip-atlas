@@ -1,0 +1,135 @@
+{
+ "version": 1,
+ "regions": [
+  {
+   "id": "lis",
+   "file": "lisbon.json",
+   "name": "Lisboa",
+   "country_code": "PT",
+   "count": 137,
+   "bbox": [
+    38.6816,
+    -9.226,
+    38.7806,
+    -9.1034
+   ]
+  },
+  {
+   "id": "dol",
+   "file": "dolomites.json",
+   "name": "Dolomites",
+   "country_code": "IT",
+   "count": 52,
+   "bbox": [
+    46.41,
+    11.973,
+    46.7079,
+    12.1472
+   ]
+  },
+  {
+   "id": "prg",
+   "file": "prague.json",
+   "name": "Praha",
+   "country_code": "CZ",
+   "count": 26,
+   "bbox": [
+    50.0655,
+    14.3851,
+    50.1057,
+    14.4453
+   ]
+  },
+  {
+   "id": "lon",
+   "file": "london.json",
+   "name": "England",
+   "country_code": "GB",
+   "count": 12,
+   "bbox": [
+    51.5182,
+    -0.1437,
+    51.5462,
+    -0.1138
+   ]
+  },
+  {
+   "id": "par",
+   "file": "paris.json",
+   "name": "Île-de-France",
+   "country_code": "FR",
+   "count": 61,
+   "bbox": [
+    48.8292,
+    2.2772,
+    48.898,
+    2.3929
+   ]
+  },
+  {
+   "id": "zrh",
+   "file": "zurich.json",
+   "name": "Zürich",
+   "country_code": "CH",
+   "count": 23,
+   "bbox": [
+    47.3561,
+    8.5289,
+    47.3891,
+    8.5568
+   ]
+  },
+  {
+   "id": "vie",
+   "file": "vienna.json",
+   "name": "Wien",
+   "country_code": "AT",
+   "count": 45,
+   "bbox": [
+    48.1683,
+    16.2935,
+    48.2284,
+    16.4095
+   ]
+  },
+  {
+   "id": "bud",
+   "file": "budapest.json",
+   "name": "Budapest",
+   "country_code": "HU",
+   "count": 48,
+   "bbox": [
+    47.4738,
+    19.0235,
+    47.5295,
+    19.094
+   ]
+  },
+  {
+   "id": "buc",
+   "file": "bucharest.json",
+   "name": "București",
+   "country_code": "RO",
+   "count": 32,
+   "bbox": [
+    44.417,
+    26.0622,
+    44.4825,
+    26.113
+   ]
+  },
+  {
+   "id": "ist",
+   "file": "istanbul.json",
+   "name": "İstanbul",
+   "country_code": "TR",
+   "count": 36,
+   "bbox": [
+    40.9686,
+    28.756,
+    41.0356,
+    29.0362
+   ]
+  }
+ ]
+}

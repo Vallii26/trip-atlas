@@ -38,7 +38,7 @@ SAFE, SAFE_VERSION = load_safe_vocabulary()
 FUNCTION = _w(
     "a an the this that these those it its i me my mine myself am is are was were be been being "
     "have has had having do does did will would could can and or but so as if than when where "
-    "while which what who to of in on at by for from with into onto over under up down out off "
+    "while which who to of in on at by for from with into onto over under up down out off "
     "through across along towards toward past between behind beside above below beyond inside "
     "outside within until till upon via per own all one they them their "
     "i'd i'm i've i'll it's that's there's they'd they're"
@@ -96,7 +96,7 @@ HEDGE_LOCAL = [  # hedge the claim that starts within 3 tokens after the phrase
     "a bit under", "what looked like", "what must have been",
 ]
 HEDGE_SENTENCE = [  # hedge every claim in the sentence
-    "i think", "we think", "i guess", "i believe", "i reckon", "probably", "must have", "seems",
+    "what i think was", "what we think was", "i think", "we think", "i guess", "i believe", "i reckon", "probably", "must have", "seems",
     "seemed", "seem", "apparently", "presumably", "maybe", "perhaps", "possibly", "likely",
     "as far as i can tell", "if the track is right", "judging by the photos",
 ]
@@ -173,8 +173,12 @@ _ACTS = [
     _act("viewpoint", "viewpoint lookout view views overlook panorama", kinds="viewpoint",
          categories="viewpoint"),
     _act("sight", "sight sights sightseeing monument", kinds="sight"),
-    _act("lodging", "hotel hostel hut refuge slept sleep bed room camp camped tent bunk", kinds="lodging",
+    _act("lodging", "slept sleep bed bunk", kinds="lodging",
          categories="hotel hostel hut alpine_hut guesthouse campsite"),
+    _act("hut", "hut refuge", categories="hut alpine_hut refuge"),
+    _act("hotel", "hotel room", categories="hotel guesthouse"),
+    _act("hostel", "hostel dorm", categories="hostel"),
+    _act("camp", "camp camped tent campsite", categories="campsite"),
     _act("summit", "summit summited peak top", kinds="summit", categories="peak summit"),
     _act("pass", "pass col saddle", categories="pass saddle col"),
     _act("lake", "lake lakes tarn", categories="lake", tags="lake"),

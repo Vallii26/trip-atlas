@@ -129,7 +129,9 @@ def _is_ordinary(low: str) -> bool:
     if low in lx.NUMBER_WORDS or low in lx.PARTS_OF_DAY or low in lx.UNITS or low in lx.SUPERLATIVE:
         return True
     if low in ("first", "back", "today", "yesterday", "tomorrow", "half", "quarter", "midnight", "just",
-               "forward", "no", "not", "never"):
+               "forward", "no", "not", "never", "returned", "return", "returning"):
+        return True
+    if low.endswith("est") and len(low) >= 5 and low not in lx.NOT_SUPERLATIVE:
         return True
     for v in variants(low):
         if v in lx.SAFE or v in lx.ACTIVITY or v in lx.FOOD or v in lx.WEATHER or v in lx.PEOPLE \
@@ -542,7 +544,7 @@ def _x_hedges(s: _Sent) -> None:
     s.hedge_local: list[int] = []      # token index where a local hedge ends
     s.hedge_post: list[int] = []       # token index where a post hedge starts
     toks = s.toks
-    for group, kind in ((lx.HEDGE_SENTENCE, "s"), (sorted(lx.HEDGE_LOCAL, key=len, reverse=True), "l"),
+    for group, kind in ((sorted(lx.HEDGE_SENTENCE, key=len, reverse=True), "s"), (sorted(lx.HEDGE_LOCAL, key=len, reverse=True), "l"),
                         (lx.HEDGE_POST, "p")):
         for i in range(len(toks)):
             for phrase in group:
@@ -602,7 +604,7 @@ def _x_proper_nouns(s: _Sent) -> None:
             break
         pieces = [p for x in toks[i:j] if x.kind == "w" for p in _tok_pieces(x)]
         kind = "people" if s.low(i - 1) == "with" else "place"
-        s.add(kind, i, j, pieces, proper=True)
+        s.add(kind, i, j, pieces, proper=True, initial=(i in starts and j == i + 1))
         i = j
 
 
@@ -930,13 +932,25 @@ def _check_name(c: VClaim, s: _Sent, ctx: _Ctx) -> Result:
     note = [e for e, toks in ctx.notes if _contig(ct, toks)]
     if note:
         return _decide(c, note, "", "named in the traveller's note")
-    others = [n for n in ctx.other_names if n.tokens == ct] or [n for n in ctx.other_names if _contig(ct, n.tokens)]
+    if c.meta.get("initial") and len(ct) == 1:
+        # a capitalised sentence-initial word may just be an ordinary word the lexicons do not know
+        evs = ctx.payload_word(ct[0]) + ctx.note_word(ct[0])
+        if evs:
+            return _decide(c, evs, "", "licensed by cited evidence")
+    others = [n for n in ctx.other_names if n.tokens == ct]
     if others:
         o = others[0].ev
         where = f"other day {o.day.isoformat()}" if o.day != ctx.block.day else "same day, other moment"
         return False, None, f"known place but not cited ({where})", []
     if any(k == ct for k in ctx.known):
         return False, None, "known gazetteer place but not in cited evidence", []
+    if any(_contig(ct, n.tokens) for n in ctx.names):
+        return False, None, "unsafe short form of a cited name (generic words only, or it drops identifying words)", []
+    part = [n for n in ctx.other_names if _contig(ct, n.tokens)]
+    if part:
+        o = part[0].ev
+        where = f"other day {o.day.isoformat()}" if o.day != ctx.block.day else "same day, other moment"
+        return False, None, f"part of a known place name that is not cited ({where})", []
     return False, None, "proper noun not in cited evidence", []
 
 
@@ -955,10 +969,19 @@ def _time_points(ctx: _Ctx) -> list[tuple[int, Evidence]]:
     return pts
 
 
-def _note_numeric(c: VClaim, ctx: _Ctx) -> list[Evidence]:
+def _note_numeric(c: VClaim, ctx: _Ctx, s: _Sent | None = None) -> list[Evidence]:
+    """A number the traveller said in a note. If the diary puts content words next to the number,
+    at least one of them must come from that note too (stops '19:00' borrowing a note's 'by nine')."""
     out = []
+    near: list[str] = []
+    if s is not None:
+        i, j = c.meta["i"], c.meta["j"]
+        near = [t.low for k, t in enumerate(s.toks) if t.kind == "w" and (i - 3 <= k < i or j <= k < j + 3)
+                and t.used not in ("fn", "hedge", "safe", "quote", None)]
     for e, nc in ctx.note_claims:
         if nc.kind != c.kind:
+            continue
+        if near and not any(same_word(t, w) for (ne, toks) in ctx.notes if ne is e for t in toks for w in near):
             continue
         if c.kind == "time":
             a, b = c.meta["minutes"], nc.meta["minutes"]
@@ -973,7 +996,7 @@ def _note_numeric(c: VClaim, ctx: _Ctx) -> list[Evidence]:
     return out
 
 
-def _check_time(c: VClaim, ctx: _Ctx) -> Result:
+def _check_time(c: VClaim, ctx: _Ctx, s: _Sent | None = None) -> Result:
     m = c.meta
     lo, hi = (m["hlo"], m["hhi"]) if c.hedged else (m["lo"], m["hi"])
     if m.get("mod"):
@@ -986,7 +1009,7 @@ def _check_time(c: VClaim, ctx: _Ctx) -> Result:
             d = ((p - cm + 720) % 1440) - 720
             if lo <= d <= hi:
                 evs.append(e)
-    evs += _note_numeric(c, ctx)
+    evs += _note_numeric(c, ctx, s)
     return _decide(c, evs, f"no cited time within [{lo:+d},{hi:+d}] min of {c.value}")
 
 
@@ -1047,18 +1070,16 @@ def _check_part(c: VClaim, ctx: _Ctx) -> Result:
 
 def _range_ok(c: VClaim, actual: float, floor_u: float, rel_u: float, floor_h: float, rel_h: float) -> bool:
     v = float(c.meta["stated"])
-    gran = float(c.meta.get("gran", 1.0))
     t = max(floor_h, rel_h * v) if c.hedged else max(floor_u, rel_u * v)
     d = c.meta.get("dir")
-    eps = 0.5 * gran
-    if d == 1:
-        return v - eps <= actual <= v + max(t, 0.25 * v)
-    if d == -1:
-        return v - max(t, 0.2 * v) <= actual <= v + eps
+    if d == 1:          # "over 8 km": the true value must not be below the stated one
+        return v - 1e-9 <= actual <= v + max(t, 0.25 * v)
+    if d == -1:         # "nearly 13 hours": the true value must not exceed the stated one
+        return v - max(t, 0.2 * v) <= actual <= v + 1e-9
     return abs(actual - v) <= t + 1e-9
 
 
-def _check_measure(c: VClaim, ctx: _Ctx) -> Result:
+def _check_measure(c: VClaim, ctx: _Ctx, s: _Sent | None = None) -> Result:
     evs: list[Evidence] = []
     if c.kind == "duration":
         cands: list[tuple[float, Evidence]] = []
@@ -1104,12 +1125,12 @@ def _check_measure(c: VClaim, ctx: _Ctx) -> Result:
             if _range_ok(c, v, 0.5 * gran, rel_u, gran, rel_h):
                 evs.append(e)
         what = "distance/elevation"
-    evs += _note_numeric(c, ctx)
+    evs += _note_numeric(c, ctx, s)
     tol = "hedged" if c.hedged else "unhedged"
     return _decide(c, evs, f"no cited {what} evidence matches {c.text!r} ({tol} tolerance)")
 
 
-def _check_count(c: VClaim, ctx: _Ctx) -> Result:
+def _check_count(c: VClaim, ctx: _Ctx, s: _Sent | None = None) -> Result:
     noun = str(c.meta.get("noun", ""))
     evs: list[Evidence] = []
     if c.meta.get("stated") is None:
@@ -1134,7 +1155,7 @@ def _check_count(c: VClaim, ctx: _Ctx) -> Result:
     elif noun == "border":
         if float(c.meta["stated"]) == len(ctx.of("border")) and ctx.of("border"):
             evs += ctx.of("border")
-    evs += _note_numeric(c, ctx)
+    evs += _note_numeric(c, ctx, s)
     return _decide(c, evs, f"count {c.text!r} not matched by cited evidence")
 
 
@@ -1386,13 +1407,13 @@ def _check_claim(c: VClaim, s: _Sent, ctx: _Ctx) -> Result:
     if k in ("place", "locality", "country") or (k == "people" and c.meta.get("proper")):
         return _check_name(c, s, ctx)
     if k == "time":
-        return _check_time(c, ctx)
+        return _check_time(c, ctx, s)
     if k == "part_of_day":
         return _check_part(c, ctx)
     if k in ("duration", "distance", "elevation"):
-        return _check_measure(c, ctx)
+        return _check_measure(c, ctx, s)
     if k == "count":
-        return _check_count(c, ctx)
+        return _check_count(c, ctx, s)
     if k in ("activity", "transport"):
         return _check_activity(c, s, ctx)
     if k in ("food", "weather", "people", "feeling"):

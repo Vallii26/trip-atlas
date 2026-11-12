@@ -1,0 +1,31 @@
+{
+"region": {"id": "prg", "name": "Praha", "country": "Czechia", "country_code": "CZ"},
+"pois": [
+{"id": "prg/hlavni-nadrazi", "name": "Praha hlavní nádraží", "category": "station", "lat": 50.083, "lon": 14.4353, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Prague main station"]},
+{"id": "prg/hotel-pariz", "name": "Hotel Paříž", "category": "hotel", "lat": 50.0882, "lon": 14.4288, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ"},
+{"id": "prg/obecni-dum", "name": "Obecní dům", "category": "monument", "lat": 50.0877, "lon": 14.4283, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Municipal House"]},
+{"id": "prg/prasna-brana", "name": "Prašná brána", "category": "monument", "lat": 50.0872, "lon": 14.4278, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Powder Tower"]},
+{"id": "prg/staromestske-namesti", "name": "Staroměstské náměstí", "category": "square", "lat": 50.0875, "lon": 14.4213, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Old Town Square"]},
+{"id": "prg/orloj", "name": "Pražský orloj", "category": "monument", "lat": 50.087, "lon": 14.4208, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Astronomical Clock"]},
+{"id": "prg/tynsky-chram", "name": "Týnský chrám", "category": "church", "lat": 50.0877, "lon": 14.4226, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Church of Our Lady before Týn"]},
+{"id": "prg/u-prince", "name": "U Prince", "category": "restaurant", "lat": 50.0869, "lon": 14.4211, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ"},
+{"id": "prg/karluv-most", "name": "Karlův most", "category": "bridge", "lat": 50.0865, "lon": 14.4114, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Charles Bridge"]},
+{"id": "prg/staromestska-mostecka-vez", "name": "Staroměstská mostecká věž", "category": "monument", "lat": 50.0862, "lon": 14.4135, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Old Town Bridge Tower"]},
+{"id": "prg/kampa", "name": "Kampa", "category": "park", "lat": 50.0845, "lon": 14.4085, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ"},
+{"id": "prg/lennonova-zed", "name": "Lennonova zeď", "category": "monument", "lat": 50.0862, "lon": 14.4068, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Lennon Wall"]},
+{"id": "prg/prazsky-hrad", "name": "Pražský hrad", "category": "castle", "lat": 50.0909, "lon": 14.4005, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Prague Castle"]},
+{"id": "prg/katedrala-sv-vita", "name": "Katedrála sv. Víta", "category": "church", "lat": 50.0909, "lon": 14.4006, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["St. Vitus Cathedral"]},
+{"id": "prg/zlata-ulicka", "name": "Zlatá ulička", "category": "street", "lat": 50.0918, "lon": 14.404, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Golden Lane"]},
+{"id": "prg/lobkowicz-palace-cafe", "name": "Lobkowicz Palace Café", "category": "cafe", "lat": 50.0914, "lon": 14.4045, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ"},
+{"id": "prg/petrinska-rozhledna", "name": "Petřínská rozhledna", "category": "viewpoint", "lat": 50.0835, "lon": 14.3951, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Petřín Lookout Tower"]},
+{"id": "prg/cafe-louvre", "name": "Café Louvre", "category": "cafe", "lat": 50.082, "lon": 14.4188, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ"},
+{"id": "prg/u-medvidku", "name": "U Medvídků", "category": "restaurant", "lat": 50.0826, "lon": 14.4183, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ"},
+{"id": "prg/cafe-slavia", "name": "Kavárna Slavia", "category": "cafe", "lat": 50.0815, "lon": 14.4133, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ"},
+{"id": "prg/narodni-divadlo", "name": "Národní divadlo", "category": "theatre", "lat": 50.0811, "lon": 14.4135, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["National Theatre"]},
+{"id": "prg/u-fleku", "name": "U Fleků", "category": "restaurant", "lat": 50.0787, "lon": 14.417, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ"},
+{"id": "prg/tancici-dum", "name": "Tančící dům", "category": "monument", "lat": 50.0755, "lon": 14.4141, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Dancing House"]},
+{"id": "prg/vaclavske-namesti", "name": "Václavské náměstí", "category": "square", "lat": 50.0811, "lon": 14.428, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Wenceslas Square"]},
+{"id": "prg/lokal-dlouha", "name": "Lokál Dlouhááá", "category": "restaurant", "lat": 50.0906, "lon": 14.425, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ"},
+{"id": "prg/letna", "name": "Letenské sady", "category": "park", "lat": 50.0957, "lon": 14.416, "locality": "Praha", "region": "Praha", "country": "Czechia", "country_code": "CZ", "alt_names": ["Letná Park"]}
+]
+}

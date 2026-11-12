@@ -1,0 +1,17 @@
+{
+"region": {"id": "lon", "name": "England", "country": "United Kingdom", "country_code": "GB"},
+"pois": [
+{"id": "lon/st-pancras-international", "name": "St Pancras International", "category": "station", "lat": 51.5319, "lon": -0.1263, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB", "alt_names": ["London St Pancras"]},
+{"id": "lon/kings-cross", "name": "London King's Cross", "category": "station", "lat": 51.5308, "lon": -0.1238, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB", "alt_names": ["King's Cross station"]},
+{"id": "lon/st-pancras-renaissance-hotel", "name": "St. Pancras Renaissance Hotel", "category": "hotel", "lat": 51.5299, "lon": -0.1259, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB"},
+{"id": "lon/german-gymnasium", "name": "German Gymnasium", "category": "restaurant", "lat": 51.5323, "lon": -0.1249, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB"},
+{"id": "lon/british-library", "name": "British Library", "category": "library", "lat": 51.53, "lon": -0.1277, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB"},
+{"id": "lon/euston", "name": "London Euston", "category": "station", "lat": 51.5282, "lon": -0.1337, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB"},
+{"id": "lon/caravan-kings-cross", "name": "Caravan King's Cross", "category": "cafe", "lat": 51.5355, "lon": -0.1257, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB"},
+{"id": "lon/granary-square", "name": "Granary Square", "category": "square", "lat": 51.5356, "lon": -0.1252, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB"},
+{"id": "lon/dishoom-kings-cross", "name": "Dishoom King's Cross", "category": "restaurant", "lat": 51.5362, "lon": -0.1247, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB"},
+{"id": "lon/coal-drops-yard", "name": "Coal Drops Yard", "category": "shop", "lat": 51.5358, "lon": -0.1264, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB"},
+{"id": "lon/camley-street-natural-park", "name": "Camley Street Natural Park", "category": "park", "lat": 51.535, "lon": -0.1282, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB"},
+{"id": "lon/the-lighterman", "name": "The Lighterman", "category": "bar", "lat": 51.5353, "lon": -0.1247, "locality": "London", "region": "England", "country": "United Kingdom", "country_code": "GB"}
+]
+}

@@ -1,0 +1,28 @@
+{
+"region": {"id": "zrh", "name": "Zürich", "country": "Switzerland", "country_code": "CH"},
+"pois": [
+{"id": "zrh/zurich-hb", "name": "Zürich HB", "category": "station", "lat": 47.3779, "lon": 8.5403, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH", "alt_names": ["Zürich Hauptbahnhof"]},
+{"id": "zrh/landesmuseum", "name": "Landesmuseum Zürich", "category": "museum", "lat": 47.3791, "lon": 8.5406, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH", "alt_names": ["Swiss National Museum"]},
+{"id": "zrh/brasserie-federal", "name": "Brasserie Federal", "category": "restaurant", "lat": 47.3777, "lon": 8.5396, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/hotel-schweizerhof", "name": "Hotel Schweizerhof Zürich", "category": "hotel", "lat": 47.377, "lon": 8.5398, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/lindenhof", "name": "Lindenhof", "category": "viewpoint", "lat": 47.373, "lon": 8.5408, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/st-peter", "name": "Kirche St. Peter", "category": "church", "lat": 47.3711, "lon": 8.5407, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/schipfe", "name": "Schipfe", "category": "neighbourhood", "lat": 47.3732, "lon": 8.5418, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/heimatwerk", "name": "Schweizer Heimatwerk", "category": "shop", "lat": 47.3735, "lon": 8.5421, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/confiserie-sprungli", "name": "Confiserie Sprüngli", "category": "cafe", "lat": 47.3697, "lon": 8.5389, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH", "alt_names": ["Sprüngli Paradeplatz"]},
+{"id": "zrh/paradeplatz", "name": "Paradeplatz", "category": "square", "lat": 47.3698, "lon": 8.5391, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/cafe-schober", "name": "Café Conditorei 1842", "category": "cafe", "lat": 47.3711, "lon": 8.544, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH", "alt_names": ["Conditorei Schober"]},
+{"id": "zrh/zeughauskeller", "name": "Zeughauskeller", "category": "restaurant", "lat": 47.3708, "lon": 8.5395, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/restaurant-zunfthaus-zur-waag", "name": "Zunfthaus zur Waag", "category": "restaurant", "lat": 47.3703, "lon": 8.5404, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/fraumunster", "name": "Fraumünster", "category": "church", "lat": 47.3698, "lon": 8.5413, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/grossmunster", "name": "Grossmünster", "category": "church", "lat": 47.3701, "lon": 8.5441, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/helmhaus", "name": "Helmhaus", "category": "museum", "lat": 47.3698, "lon": 8.5435, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/wasserkirche", "name": "Wasserkirche", "category": "church", "lat": 47.3696, "lon": 8.5433, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/burkliplatz", "name": "Bürkliplatz", "category": "ferry_terminal", "lat": 47.3665, "lon": 8.5412, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH", "alt_names": ["Zürich Bürkliplatz (See)"]},
+{"id": "zrh/burkliterrasse", "name": "Bürkliterrasse", "category": "viewpoint", "lat": 47.3661, "lon": 8.5415, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/hotel-baur-au-lac", "name": "Baur au Lac", "category": "hotel", "lat": 47.3672, "lon": 8.5392, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/cafe-odeon", "name": "Café Odeon", "category": "cafe", "lat": 47.367, "lon": 8.5454, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/sternen-grill", "name": "Sternen Grill", "category": "restaurant", "lat": 47.3668, "lon": 8.5463, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"},
+{"id": "zrh/polyterrasse", "name": "Polyterrasse", "category": "viewpoint", "lat": 47.3765, "lon": 8.5468, "locality": "Zürich", "region": "Zürich", "country": "Switzerland", "country_code": "CH"}
+]
+}
