@@ -37,8 +37,6 @@ def test_R2_coalescing_keeps_the_original_base_so_unseen_remote_edits_are_not_ov
     phone.transport.drop_after = 0   # nothing reaches the server, but the pull below does
     phone.sync()
     phone.outbox[0].sent = False     # (pretend the push was never attempted)
-    phone.transport.fail_pull = False
-    w.server  # phone now pulls web's edit while its own edit is still pending
     page = phone.transport.pull(phone.cursor, 100)
     for d in page.docs:
         phone._adopt(d)

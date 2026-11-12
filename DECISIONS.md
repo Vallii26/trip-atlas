@@ -30,8 +30,8 @@ evidence is thin, write less" is implemented rather than promised.
 
 ## D5 — Sync: server-authoritative, field-level, with three-way text merge and no silent loss
 Mutations carry the base value the client edited from. Scalar fields resolve last-writer-wins by
-hybrid logical clock. Diary sentences get a word-level three-way merge; if both sides changed the
-same words, the later edit wins **and the other version is kept on the sentence as a visible
+hybrid logical clock. Diary sentences get a sentence-aware three-way merge; if both sides changed the
+same sentence close together, the later edit wins **and the other version is kept on the sentence as a visible
 alternative** the user can restore with one tap. Rejected alternatives: CRDT text (heavy, and
 character interleaving produces nonsense sentences), whole-document LWW (loses work).
 
@@ -76,3 +76,23 @@ Remote push needs APNs/FCM credentials that cannot be committed. A local daily n
 (off by default, user-chosen time) plus a foreground refresh gives the user-visible behaviour
 with no server secret. Cost: the notification fires at the chosen time, not at the exact moment
 the server finishes drafting.
+
+## D14 — Text merges are sentence-aware and conservative (revises D5 after prototype R3)
+A word-level merge of two edits to the same sentence can produce a grammatical chimera nobody
+wrote. Edits now merge automatically only when they fall in different sentences, insert whole
+sentences at different places, or are at least 4 unchanged words apart; anything closer is a
+surfaced conflict. Cost: more conflicts shown to the user than strictly necessary, and the 4-word
+gap is an untested guess. Property fuzzing found two real loss paths around "Use this" (F1, F2 in
+`docs/prototypes/R3-sync.md`); both are fixed and kept as seeded-bug regression checks.
+
+## D15 — Captions and moment notes are merge fields too
+Last-writer-wins on typed prose loses text silently, so `assets.caption` and `moments.note` get
+the same merge-with-alternatives treatment as diary text. Other scalars stay last-writer-wins and
+the loser is reported as `lost`.
+
+## D16 — The diary writer obeys a closed vocabulary (from prototype R2)
+The verifier only reaches its recall because every content word in a generated sentence must be
+licensed by cited evidence, the traveller's own note, or a versioned safe-word list
+(`diary/lexicon_safe.txt`). The price is plainer prose and rejection of about half of true
+sentences that ignore the contract. Faithfulness is the brief's top bar, so the writer adapts to
+the verifier, not the reverse.

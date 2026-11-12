@@ -35,7 +35,8 @@ backend/
       stats.py           stage 6: stats, firsts, atlas layers
       run.py             orchestrates stages, writes per-stage artifacts
     providers/           geocoder.py, vision.py, transcriber.py, llm.py (interfaces + implementations)
-    sync/                hlc.py, textmerge.py, merge.py (pure) + service.py (DB-backed)
+    sync/                hlc.py, textmerge.py, merge.py, server.py (pure; Store protocol),
+                         sim.py (reference client) + service.py (DB-backed Store)
     api/                 FastAPI routers
     export/              share.py (static share page), photobook.py (PDF)
     data/gazetteer/      offline places used by the fixture geocoder
@@ -164,63 +165,113 @@ every provider to its offline implementation.
 
 SQLite tables: `users`, `sessions`, `devices`, `trips`, `assets`, `track_points`, `docs`
 (the sync document store, see §5), `changes` (monotonic change log), `applied_ops`, `jobs`,
-`llm_log`. Media on disk under `ATLAS_DATA_DIR/media/<trip>/`: `orig/` (as uploaded, never served
+`llm_log`. `applied_ops` is keyed by (user, op_id); `changes` only allocates the sequence and
+pull reads `docs` by (owner, rev). Media on disk under `ATLAS_DATA_DIR/media/<trip>/`: `orig/` (as uploaded, never served
 publicly), `thumb/` and `view/` (re-encoded, **all metadata stripped**), `audio/`.
 
 ## 5. Sync model
+
+Proved by prototype R3 (`docs/prototypes/R3-sync.md`): the rules below are the ones that survived
+property-based fuzzing. `backend/atlas/sync/` holds the pure core; `sim.py` there is the executable
+specification of the client engine that `packages/shared` ports to TypeScript.
 
 ### What syncs
 Everything a client shows is a **document** in a collection, scoped to a trip:
 
 | Collection | Mutable by clients | Notes |
 |---|---|---|
-| `trips` | title, dates_hint, cover_asset_id, deleted | |
-| `moments` | title, kind, hidden, note, deleted; create (client-generated id) | user-set fields become locks |
-| `assets` | hidden, favorite, caption, pinned_moment_id | moving a photo = setting `pinned_moment_id` |
-| `diary_blocks` | text, pos, deleted; create | `text` is a merge field |
+| `trips` | title, dates_hint, cover_asset_id; create, delete | |
+| `moments` | title, kind, hidden, note; create, delete | `note` is a merge field; user-set fields become locks |
+| `assets` | hidden, favorite, caption, pinned_moment_id | `caption` is a merge field; moving a photo = setting `pinned_moment_id` |
+| `diary_blocks` | text, pos; create, delete | `text` is a merge field |
 | `evidence` | — (read-only) | lets clients show evidence links offline |
 | `derived` | — (read-only) | one per trip: stats, route geometry, day summaries |
+
+Fields not listed are read-only to clients and writable by the pipeline. Clients may create and
+delete `trips`, `moments`, `diary_blocks`; nothing else.
 
 Binary uploads (photos, voice notes) and location batches are not documents; they go through an
 idempotent upload queue (`client_id` + sha256 / `batch_id`), retried until acknowledged.
 
 ### Document and clock
 ```
-Doc { id, collection, trip_id, fields{…}, meta{ field → { hlc, device } }, conflicts[…], rev, deleted }
+Doc { id, collection, trip_id, fields{…}, meta{ field → { hlc, device } }, conflicts[Alt], rev, deleted }
+Alt { id, field, value, hlc, device, base }      id = "c_" + sha256(field NUL value)[:16]
 ```
-`hlc` is a hybrid logical clock string `"<ms:013d>-<counter:04d>-<device>"`, totally ordered by
-string comparison. The server never trusts a clock more than 5 minutes ahead of its own: such
-timestamps are clamped on receipt, so a phone with a wrong clock cannot win every conflict forever.
-`rev` is the server change sequence at the doc's last change.
+`meta._deleted` holds the hlc/device of the last delete or restore. `hlc` is a hybrid logical
+clock string `"<ms:013d>-<counter:04d>-<device>"`, totally ordered by string comparison. The
+server clamps timestamps more than 5 minutes ahead of its own clock to server time, so a phone
+with a fast clock cannot win every conflict forever. Two writes by the same device are ordered by
+arrival, never by hlc; across devices the higher hlc wins. A write whose base matches is stored
+with `max(hlc, successor(previous hlc))`. Clients fold every received hlc into their clock and
+correct their wall clock from `server_ms`. `rev` is the server change sequence at the doc's last
+change.
 
 ### Protocol
 ```
-POST /v1/sync/push   { device_id, mutations: [Mutation] }  →  { results: [{op_id, status, doc}], cursor }
-GET  /v1/sync/pull?cursor=N&limit=M                         →  { docs: [Doc], cursor, has_more }
+POST /v1/sync/push   { device_id, mutations: [Mutation] }
+                     →  { results: [{op_id, status, doc, fields{name → outcome}, detail, original_status?, evicted[]}], server_ms }
+GET  /v1/sync/pull?cursor=N&limit=M   →  { docs: [Doc], cursor, has_more, server_ms }
 
 Mutation { op_id, collection, id, trip_id, kind: "upsert" | "delete",
-           fields{ name → new value }, base{ name → value the client edited from }, hlc }
+           fields{ name → new value }, base{ name → value on screen when edited },
+           resolve[ alternative ids ], hlc }
 status ∈ applied · merged · conflict · duplicate · rejected
+outcome ∈ applied · merged · conflict · lost · noop · kept
 ```
-- **Idempotent**: `op_id` is recorded; replays return `duplicate` with the current doc.
-- **Per field**: if the server value equals `base`, apply. Otherwise both sides changed it:
-  - scalar field → the higher `hlc` wins;
-  - merge field (diary `text`) → word-level three-way merge of (base, server, client). A clean
-    merge is `merged`. If the same words were changed on both sides it is `conflict`: the higher
-    `hlc` becomes the text and **the other version is appended to `conflicts`** with its device
-    and time. Clients show it under the sentence ("Also written on *Phone*: … — Use this ·
-    Dismiss"). Resolving is an ordinary mutation. Nothing a user typed is ever discarded silently.
-- Delete vs edit: an edit to a deleted block resurrects it (an edit is evidence the user wants it).
-- Pipeline output is written through the same merge path with the pseudo-device `pipeline`, and
-  never overwrites a field whose `meta.device` is a user device (D6).
+Push returns no cursor: a client must only advance its cursor through pull.
+
+- **Idempotent**: ops are recorded per (user, `op_id`), in the same transaction as the change;
+  replays return `duplicate` with the current doc. A batch may be cut short and resent whole.
+- **Per field** (`s` server value, `b` base, `c` new value), first match wins: `c == s` → noop;
+  field unset or pipeline-owned → apply; `b == s` → apply, whatever the clocks say; `c == b` →
+  noop; otherwise both sides changed it:
+  - scalar field → the winner by the clock rule stays; a losing mutation is dropped and reported
+    as `lost` (status `conflict`);
+  - merge field → sentence-aware three-way merge of (base, server, client). Edits merge
+    automatically only if they are in different sentences, or insert whole sentences at different
+    places, or are at least 4 unchanged words apart; the result is `merged`. Otherwise it is
+    `conflict`: nothing is merged, the winner by the clock rule becomes the text and **the other
+    whole version is appended to `conflicts`** with its device and time. Clients show it under the
+    sentence ("Also written on *Phone*: … — Use this · Dismiss"). Alternatives are
+    content-addressed (identical ones dedupe), one equal to the current text is dropped, and at
+    most 8 are kept per doc.
+- **Resolving** is an upsert with `resolve: [ids]`: Dismiss sends no fields; Use this sends
+  `fields{text: alternative}`, `base{text: text on screen}`. The server removes the listed
+  alternatives first, then applies the fields. An alternative that was chosen (its value is the
+  mutation's value or base) is put back if it does not end up as the text. Nothing a user typed is
+  ever discarded silently.
+- **Deletes** are tombstones (fields kept). A delete carries `base` = every client-writable field
+  as seen and `resolve` = every alternative seen, and is refused (`conflict`) if a user edit it
+  did not see exists: an unseen alternative, a changed merge field, a changed scalar with a
+  winning clock, or a later restore. An upsert reaching a tombstone resurrects it if it carries a
+  merge field, or wins by the clock rule, or the tombstone is the pipeline's. So a concurrent text
+  edit always beats a delete; a concurrent scalar edit is last-writer-wins. Undo delete is an
+  upsert with no fields.
+- **Creates** use client-generated ids; the same id created twice merges per field with an empty
+  base.
+- **Authorization**: a trip belongs to one user; a mutation for a trip the user does not own, with
+  a `trip_id` different from the doc's, or with an `hlc` device different from `device_id`, is
+  `rejected` and returns no doc. An unknown trip can only be created.
+- **Pull** returns each changed doc once, in its latest state, ordered by `rev`; `cursor` is the
+  last returned `rev`. A doc that changes between pages is delivered again, never skipped.
+- **Pipeline output** goes through the same merge path with the reserved pseudo-device `pipeline`
+  (internal entry point only). It never overwrites a field whose `meta.device` is a user device,
+  never deletes a doc with a user-owned field or an alternative, and never resurrects a user's
+  tombstone (D6). A user write to a pipeline-owned field always wins, even against a later
+  regeneration.
 
 ### On the client (`packages/shared` `SyncEngine`)
-Local store = last-synced docs + an **outbox** of pending mutations. `mutate()` applies
-optimistically, records `base` as the last-synced value, and coalesces repeated edits to the same
-field. `sync()` pushes the outbox in order, replaces local docs with the server's answers, then
-pulls from the cursor; pulled docs do not clobber fields that still have a pending local edit.
-Offline simply means the outbox grows. The web app uses the same engine with an in-memory store
-and a short poll; the mobile app persists store and outbox in a sealed (encrypted) store.
+Local store = last-synced docs + an **outbox** of pending mutations; what the UI shows is always
+computed as synced docs with the outbox replayed on top, so a pull cannot clobber a pending edit.
+`mutate()` records `base` as the value on screen (synced value plus this device's earlier pending
+ops). A repeated edit folds into the last op for that doc only if that op has never been sent, and
+the folded op keeps its original base. Ops are frozen before a push leaves and resent unchanged
+until the server returns a result for them. `sync()` is single-flight: push the outbox in order,
+adopt each returned doc if its `rev` is not older, then pull from the client's own cursor until
+`has_more` is false. Offline simply means the outbox grows. The web app uses the same engine with
+an in-memory store and a short poll; the mobile app persists store and outbox in a sealed
+(encrypted) store.
 
 ### On-device storage (mobile)
 Sealed with XChaCha20-Poly1305; key in the platform keystore. Stored: docs, outbox, upload queue

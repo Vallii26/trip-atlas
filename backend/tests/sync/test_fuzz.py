@@ -35,7 +35,7 @@ from atlas.sync.textmerge import tokenize
 
 from .harness import DAY, STATS, TRIP, World
 
-EXAMPLES = int(os.environ.get("ATLAS_SYNC_FUZZ", "40"))
+EXAMPLES = int(os.environ.get("ATLAS_SYNC_FUZZ", "300"))
 STEPS = int(os.environ.get("ATLAS_SYNC_FUZZ_STEPS", "50"))
 COUNT = {"examples": 0, "steps": 0, "quiesce": 0, "evicted": 0}
 

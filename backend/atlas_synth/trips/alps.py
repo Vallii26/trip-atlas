@@ -90,7 +90,7 @@ def define(seed: int = 2207):
         via=[(46.6330, 12.0280, 1700), (46.6260, 12.0190, 1819), (46.6190, 12.0130, 1980)], kw=["Fanes", "climb"])
     b.gap("12:55", "14:50", "no signal in the Rudo valley")
     b.m("15:30", 25, D + "rifugio-fanes", "lodging", "hut", n=4, c=2, imp=2, look={"flag": (200, 30, 40)}, kw=["Fanes", "hut"])
-    b.voice("16:00", "Fanes hut. Knees are fine, shoulders not. Beer on the terrace is four fifty and worth every cent!",
+    b.voice("15:50", "Fanes hut. Knees are fine, shoulders not. Beer on the terrace is four fifty and worth every cent!",
             ["Fanes", "beer"], "Arrived at Rifugio Fanes mid-afternoon and had a beer on the terrace.", False)
     b.m("18:45", 60, D + "rifugio-fanes", "meal", "hut_interior", n=4, imp=2, kw=["Fanes", "dinner"])
     b.forbid("Slept at Rifugio Lavarella.", ["Lavarella"])

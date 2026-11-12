@@ -195,15 +195,15 @@ def expand(trip: TripBuilder, geo: Geo, clock: Clock, scale: float, px: int) -> 
     if hosts and trip.noexif:
         for i in sorted(S.choice(len(hosts), size=min(trip.noexif, len(hosts)), replace=False).tolist()):
             mo = hosts[i]
-            t = round(float(S.uniform(mo.start + 20, mo.end - 20)), 3)
-            new(None, t, mo, mo.scene, kind="noexif", breakage=["no_exif_time", "stripped_exif", "no_gps"], folder=WA_FOLDER)
+            t = _times(S, mo, 1, False)[0]
+            new(None, t, mo, _scene_for(S, mo, t), kind="noexif", breakage=["no_exif_time", "stripped_exif", "no_gps"], folder=WA_FOLDER)
     # corrupt files
     for what in trip.corrupt:
         mo = trip.moments[int(S.integers(0, len(trip.moments)))]
-        t = round(float(S.uniform(mo.start + 5, mo.end - 5)), 3)
+        t = _times(S, mo, 1, False)[0]
         if what == "truncated":
-            new(phone, t, None, mo.scene, kind="truncated", junk="corrupt", status="unreadable", breakage=["truncated"],
-                layout_seed=seed_of(trip.seed, "layout", mo.id, mo.scene, 0), look=mo.look)
+            new(phone, t, None, _scene_for(S, mo, t), kind="truncated", junk="corrupt", status="unreadable", breakage=["truncated"],
+                layout_seed=seed_of(trip.seed, "layout", mo.id, "truncated", 0), look={})
         elif what == "zero":
             cam = camera or phone
             new(cam, float(int(t)), None, None, kind="zero", junk="corrupt", status="unreadable", breakage=["zero_byte"])

@@ -43,7 +43,7 @@ early Expo-web smoke test before investing in mobile screens.
 ### M0 — Plan and contracts
 - [x] Read brief, probe environment
 - [x] `PLAN.md`, `ARCHITECTURE.md`, `DECISIONS.md`
-- [ ] Monorepo scaffold
+- [x] Monorepo scaffold (backend imports, Next.js builds, Expo bundles for web and Android)
 
 ### M1 — Synthetic trips with ground truth (Phase 1)
 - [ ] Generator: Lisbon city weekend, Alpine hut-to-hut hike (poor signal), London→Istanbul rail journey (3 timezones)
@@ -53,8 +53,8 @@ early Expo-web smoke test before investing in mobile screens.
 
 ### M2 — Risk prototypes
 - [ ] R1 time repair + clustering prototype with metrics
-- [ ] R2 faithfulness verifier + mutation harness
-- [ ] R3 sync merge core + convergence property tests
+- [x] R2 faithfulness verifier + mutation harness — recall 1.000 (1374/1374), 0/47 FP blocks on fixtures; 70/76 adversarial
+- [x] R3 sync merge core + convergence property tests — 106 tests; deep fuzz 5,124 examples, 0 failures
 
 ### M3 — Pipeline, stage by stage (Phase 2), each with its own CLI and tests
 - [ ] 1 Ingest + metadata repair
