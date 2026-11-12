@@ -184,8 +184,10 @@ class Constraints(BaseModel):
 # --------------------------------------------------------------------------------------------
 
 EvidenceType = Literal[
-    "time",             # {start_local:"HH:MM", end_local:"HH:MM", part_of_day:"morning"|…}
-    "place",            # {name, category, locality, country, approximate}
+    "time",             # {start_local:"HH:MM", end_local:"HH:MM", start_utc, end_utc (ISO, for order
+                        #  checks across timezones), part_of_day: morning|noon|afternoon|evening|night|
+                        #  sunrise|sunset}
+    "place",            # {name, category, locality, country, approximate}  approximate → treated as low
     "locality",         # {locality, region?, country, country_code}  (where the day/moment was)
     "duration",         # {minutes}
     "photo_count",      # {count}
@@ -193,10 +195,11 @@ EvidenceType = Literal[
     "elevation",        # {ascent_m, max_ele_m?}
     "visual",           # {tags:[…]}
     "note",             # {text}                      the traveller's own words (voice note / caption)
-    "transport",        # {mode, from, to, depart_local?, arrive_local?, duration_min?}
+    "transport",        # {mode, from, to, depart_local?, arrive_local?, duration_min?, line?}
     "border",           # {from_country, to_country}
     "timezone_change",  # {from_offset_min, to_offset_min}
-    "first",            # {what: "country"|"kind"|…, value, text}
+    "first",            # {what: "country"|"kind"|…, value, text}  value/text = the literal words the
+                        #  diary may repeat
     "sequence",         # {after_moment_id}            ordering fact: this moment followed that one
     "kind",             # {kind}                       what sort of moment this was
 ]
@@ -291,6 +294,9 @@ class ClaimVerdict(BaseModel):
     reason: str = ""
 
 
+# The verifier (diary/verify.py) returns richer subclasses of these: per-sentence verdicts,
+# character spans, and the extra claim kinds "unlicensed" (content word not licensed by evidence),
+# "quote" and "citation". The writer's contract it enforces is in docs/prototypes/R2-faithfulness.md.
 class BlockVerdict(BaseModel):
     block_id: str
     supported: bool

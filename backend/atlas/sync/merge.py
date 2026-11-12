@@ -36,6 +36,8 @@ Resolving: an ordinary upsert with ``resolve=[ids]``.  The listed alternatives a
 FIRST, then the fields are applied by the rules above.  Dismiss = no fields.  "Use this" =
 ``fields{text: alternative}``, ``base{text: text the user saw}``, ``resolve=[alt id]``; if a
 third edit raced it, rule 6 runs and whichever text loses is (re-)added as an alternative.
+A resolved alternative whose value the mutation also writes is *chosen*: if it does not end up
+as the text for any reason (rules 4-6) it is put back as an alternative.
 
 Deletes are tombstones (``deleted`` + ``meta["_deleted"]``); fields are kept for resurrection.
   * A user delete carries ``base`` = every client-writable field as the user saw it and
@@ -269,8 +271,12 @@ def _apply_upsert(doc: Doc | None, m: Mutation, hlc: str, device: str, cs: Colle
             new.deleted = False
             new.meta[DELETED] = _stamp(hlc, device, new.meta.get(DELETED))
 
+    chosen: list[dict[str, Any]] = []
     if m.resolve and not is_pipeline:
         gone = set(m.resolve)
+        # "Use this": a resolved alternative whose value this mutation also writes was CHOSEN,
+        # not dismissed.  It may only disappear by becoming the text (see end of function).
+        chosen = [a for a in new.conflicts if a["id"] in gone and m.fields.get(a["field"]) == a["value"]]
         new.conflicts = [a for a in new.conflicts if a["id"] not in gone]
 
     for f in sorted(m.fields):
@@ -300,6 +306,13 @@ def _apply_upsert(doc: Doc | None, m: Mutation, hlc: str, device: str, cs: Colle
                 res.fields[f] = "lost"
         else:
             res.fields[f] = _merge_text(new, cs, res, f, c, s or "", b, hlc, device)
+
+    for a in chosen:
+        # The chosen text did not become the text (a newer edit raced it, or the write was a
+        # no-op because value == base): keep it as an alternative rather than lose it.
+        if new.fields.get(a["field"]) != a["value"]:
+            _add_alt(new, cs, res, a["field"], a["value"], hlc, device, a["base"])
+            res.fields[a["field"]] = "conflict"
 
     outcomes = set(res.fields.values())
     if outcomes & {"conflict", "lost", "kept"}:

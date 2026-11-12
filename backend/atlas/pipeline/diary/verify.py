@@ -1160,11 +1160,11 @@ def _check_count(c: VClaim, ctx: _Ctx, s: _Sent | None = None) -> Result:
 
 
 def _check_label(c: VClaim, ctx: _Ctx) -> Result:
+    """A number used as a label ('tram 28'): must be in a name-like field, never a time or quantity."""
     lab = fold(str(c.value))
-    evs = list(ctx.payload_words.get(lab, []))
-    evs += [e for e in ctx.cited if e.type != "note" and any(
-        _num(v) is not None and not isinstance(v, str) and str(v).rstrip("0").rstrip(".") == lab
-        for k, v in e.payload.items() if k in ("line", "number", "platform"))]
+    evs = [e for e in ctx.cited if e.type != "note" and any(
+        lab in name_tokens(str(v)) for k, v in e.payload.items()
+        if k in ("line", "number", "platform", "name", "from", "to") and not isinstance(v, (dict, list)))]
     evs += [e for e, toks in ctx.notes if lab in toks]
     return _decide(c, evs, f"label/number {c.text!r} not in cited evidence")
 

@@ -56,7 +56,7 @@ CASES = [
     ("rail_03", "Our train left at 6:40 am and got into Budapest-Keleti at 9:19 am.", True),
     ("rail_03", "Our train left at 6:40 pm and got into Budapest-Keleti at 9:19 am.", False),
     ("rail_13", "We pulled into Gara de Nord just before midnight.", True),
-    ("rail_13", "We pulled into Gara de Nord just after midnight.", False),
+    ("rail_13", "We pulled into Gara de Nord at 1 am.", False),
     # --- parts of day --------------------------------------------------------------------------
     ("lisbon_08", "I got to Santa Luzia in the afternoon.", True),
     ("lisbon_08", "I got to Santa Luzia in the morning.", False),

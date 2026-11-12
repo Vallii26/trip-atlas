@@ -161,12 +161,12 @@ class Client:
                 if f not in last.fields:
                     last.base[f] = seen.get(f)  # first edit of this field: base is what was seen
                 last.fields[f] = v              # later edits: ORIGINAL base stays
-                if v == last.base[f] and not last.keep:
-                    del last.fields[f], last.base[f]  # typed it back: no net change, send nothing
+                # Do NOT drop a field that was typed back to its base: the base may be this
+                # device's own in-flight text that lost on the server, and "Use this" on that
+                # alternative would silently turn into "Dismiss" (found by the fuzz, bug F1).
+                # The server treats value == base as "no net change" itself.
             last.resolve.extend(r for r in resolve if r not in last.resolve)
             last.hlc = self._stamp()
-            if not (last.fields or last.resolve or last.keep):
-                self.outbox.remove(last)
             return last.op_id
         op = self._new_op(collection, id, trip_id, "upsert", fields=dict(changes),
                           base={f: seen.get(f) for f in changes},  # R1
